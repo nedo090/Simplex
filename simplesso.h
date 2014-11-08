@@ -22,7 +22,7 @@ double *Simplesso(int m, int n, double **A, double *b, double *c,int *index)
 	double *bn=creabn(b,index,m,n);
 	double **Inverse=NULL;
 	
-	//calcolo h
+	//calcolo indice uscente h
 	double *y=(double *) malloc (n*sizeof(double));
 	for(i=0;i<n;i++)
 		y[i]=scalar(c,Inverse[i],n);
@@ -32,12 +32,12 @@ double *Simplesso(int m, int n, double **A, double *b, double *c,int *index)
 	//calcolo x
 	
 	double *x=prodotto(Inverse,tempb,n);
-	
+	// in caso di vertice ottimo restituisce x
 	if (h==-1)
 		return x;
 	
 	
-	//rapporti
+	//calcolo rapporti, risultato infinito e indice entrante k
 	double *rap=rapport(An,Inverse[h],x,bn,n,m-n);
 	int k= min(rap, m-n);
 	if (k==-1)
@@ -45,12 +45,12 @@ double *Simplesso(int m, int n, double **A, double *b, double *c,int *index)
 		printf("errore pochi vincoli\n");
 		return NULL;
 	}
-	//finale
+	//libera memoria, aggiorna gli indici e reitera il simplesso
 	free(Inverse);free(tempb);free(bn);free(rap);free(x);free(An);
 	sostituisci(index,h,k,n);
 	return Simplesso(m,n,A,b,c,index);
 }
-	
+//prodotto scalare	
 double scalar(double *x,double *y, int n)
 {
 	double sum=0;
@@ -60,6 +60,7 @@ double scalar(double *x,double *y, int n)
 	return sum;
 }
 
+//cerca primo elemento negativo
 int firstnegative(double *y,int n)
 {
 	int i=0;
@@ -70,6 +71,7 @@ int firstnegative(double *y,int n)
 	else return i;
 }
 
+//scambia gli indici tenendo il vettore ordinato
 void sostituisci(int *index,int h,int k,int n)
 {
 	if (k>=h)
@@ -99,7 +101,7 @@ void sostituisci(int *index,int h,int k,int n)
 	}
 		
 }
-
+//crea matrice indici non di base prendendo i puntatori direttamente dalla matrice originale
 double **creaAn(double **A,int *index, int m,int n)
 {
 	int i,j,k;
@@ -113,6 +115,7 @@ double **creaAn(double **A,int *index, int m,int n)
 	return An;
 }
 
+// crea vettore b indici non di base
 double *creabn(double *b,int *index, int m,int n)
 {
 	int i,j,k;
@@ -126,6 +129,7 @@ double *creabn(double *b,int *index, int m,int n)
 	return bn;
 }
 
+//crea vettore b di base
 double *creatmpb(double *b,int *index,int n)
 {
 	double *tmpb= (double *) malloc (n*sizeof(double));
@@ -135,6 +139,9 @@ double *creatmpb(double *b,int *index,int n)
 	return tmpb;
 }
 
+
+// calcola la x eseguendo il prodotto righe per colonna
+//Inverse è indicizzata per colonna
 double *prodotto(double **Inverse, double *b,int n)
 {
 	double *x=(double *) malloc (n*sizeof(double));
@@ -145,6 +152,7 @@ double *prodotto(double **Inverse, double *b,int n)
 	return x;
 }
 
+//calcola i rapporti, prima i denominatori, poi i numeratori validi
 double *rapport(double **An, double *W, double *x,double *bn,int n,int m)
 {
 	double *rap = (double *) malloc (m*sizeof(double));
@@ -157,6 +165,7 @@ double *rapport(double **An, double *W, double *x,double *bn,int n,int m)
 	return rap;
 }
 
+//calcola im minimo indice maggiore di 0
 int min(double *rap, int n)
 {
 	int i,indmin;
