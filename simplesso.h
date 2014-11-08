@@ -1,16 +1,16 @@
 // PREALPHA version
 
 #include <stdlib.h>
+#include <stdio.h>
 
 double scalar(double *x,double *y, int n);
 int firstnegative(double *y,int n);
-void prodotto (double *x, double **Inverse, double *b,int n);
-double *rapport(double **An, double *W, double *x,double *bn,int n);
-void sostituisci(int *index,int h,int k);
+double *rapport(double **An, double *W, double *x,double *bn,int n,int m);
+void sostituisci(int *index,int h,int k,int n);
 double **creaAn(double **A,int *index, int m,int n);
 double *creatmpb(double *b,int *index,int n);
-double **creabn(double *b,int *index, int m,int n);
-double *prodotto (double **Inverse, double *b,int n);
+double *creabn(double *b,int *index, int m,int n);
+double *prodotto(double **Inverse, double *b,int n);
 int min(double *rap, int n);
 
 double *Simplesso(int m, int n, double **A, double *b, double *c,int *index)
@@ -20,6 +20,7 @@ double *Simplesso(int m, int n, double **A, double *b, double *c,int *index)
 	double **An=creaAn(A,index,m,n);
 	double *tempb=creatmpb(b,index,n);
 	double *bn=creabn(b,index,m,n);
+	double **Inverse=NULL;
 	
 	//calcolo h
 	double *y=(double *) malloc (n*sizeof(double));
@@ -30,15 +31,15 @@ double *Simplesso(int m, int n, double **A, double *b, double *c,int *index)
 	
 	//calcolo x
 	
-	double *x=prodotto(x,Inverse,tempb,n);
+	double *x=prodotto(Inverse,tempb,n);
 	
 	if (h==-1)
 		return x;
 	
 	
 	//rapporti
-	double *rap=rapport(An,Inverse[h],x,bn,n);
-	int k= min(rap, n);
+	double *rap=rapport(An,Inverse[h],x,bn,n,m-n);
+	int k= min(rap, m-n);
 	if (k==-1)
 	{
 		printf("errore pochi vincoli\n");
@@ -46,7 +47,7 @@ double *Simplesso(int m, int n, double **A, double *b, double *c,int *index)
 	}
 	//finale
 	free(Inverse);free(tempb);free(bn);free(rap);free(x);free(An);
-	sostituisci(index,h,k);
+	sostituisci(index,h,k,n);
 	return Simplesso(m,n,A,b,c,index);
 }
 	
@@ -54,7 +55,7 @@ double scalar(double *x,double *y, int n)
 {
 	double sum=0;
 	int i;
-	for(i=0; i<n, i++)
+	for(i=0; i<n; i++)
 		sum += (x[i]*y[i]);
 	return sum;
 }
@@ -69,11 +70,11 @@ int firstnegative(double *y,int n)
 	else return i;
 }
 
-void sostituisci(int *index,int h,int k)
+void sostituisci(int *index,int h,int k,int n)
 {
 	if (k>=h)
 	{
-		int i=0; int temp;
+		int i=0;
 		while(index[i]<h)
 			i++;
 		i++;
@@ -87,7 +88,7 @@ void sostituisci(int *index,int h,int k)
 	}
 	else 
 	{
-		int i=n-1; int temp;
+		int i=n-1;
 		while(index[i]>h)
 			i--;
 		i--;
@@ -102,7 +103,7 @@ void sostituisci(int *index,int h,int k)
 double **creaAn(double **A,int *index, int m,int n)
 {
 	int i,j,k;
-	j==k=0;
+	j=k=0;
 	n=m-n;
 	double **An= (double **) malloc (n*sizeof(double *));
 	for (i=0;i<m;i++)
@@ -112,10 +113,10 @@ double **creaAn(double **A,int *index, int m,int n)
 	return An;
 }
 
-double **creabn(double *b,int *index, int m,int n)
+double *creabn(double *b,int *index, int m,int n)
 {
 	int i,j,k;
-	j==k=0;
+	j=k=0;
 	n=m-n;
 	double *bn= (double *) malloc (n*sizeof(double));
 	for (i=0;i<m;i++)
@@ -128,14 +129,15 @@ double **creabn(double *b,int *index, int m,int n)
 double *creatmpb(double *b,int *index,int n)
 {
 	double *tmpb= (double *) malloc (n*sizeof(double));
+	int i;
 	for (i=0; i<n; i++)
 		tmpb[i]=b[index[i]];
 	return tmpb;
 }
 
-double *prodotto (double **Inverse, double *b,int n)
+double *prodotto(double **Inverse, double *b,int n)
 {
-	double *x=(double) malloc (n*sizeof(double));
+	double *x=(double *) malloc (n*sizeof(double));
 	int i,j;
 	for (i=0; i<n;i++)
 		for(j=0;j<n;j++)
@@ -143,9 +145,16 @@ double *prodotto (double **Inverse, double *b,int n)
 	return x;
 }
 
-double *rapport(double **An, double *W, double *x,double *bn,int n)
+double *rapport(double **An, double *W, double *x,double *bn,int n,int m)
 {
-	
+	double *rap = (double *) malloc (m*sizeof(double));
+	int i;
+	for(i=0;i<m; i++)
+		rap[i]=-1*scalar(An[i],W,n);
+	for (i=0;i<m;i++)
+		if (rap[i]>0)
+			rap[i]= (bn[i]-scalar(An[i],x,n))/rap[i];
+	return rap;
 }
 
 int min(double *rap, int n)
