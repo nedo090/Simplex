@@ -4,14 +4,14 @@
 #include <stdio.h>
 
 double scalar(double *x,double *y, int n);
-int firstnegative(double *y,int n);
+int firstnegative(double *y,int n);//testata
 double *rapport(double **An, double *W, double *x,double *bn,int n,int m);
-void sostituisci(int *index,int h,int k,int n);
+void sostituisci(int *index,int h,int k,int n);//testata
 double **creaAn(double **A,int *index, int m,int n);
-double *creatmpb(double *b,int *index,int n);
-double *creabn(double *b,int *index, int m,int n);
+double *creatmpb(double *b,int *index,int n);//testata
+double *creabn(double *b,int *index, int m,int n);//testata
 double *prodotto(double **Inverse, double *b,int n);
-int min(double *rap, int n);
+int min(double *rap, int n);//testata
 
 double *Simplesso(int m, int n, double **A, double *b, double *c,int *index)
 {
@@ -94,9 +94,14 @@ void sostituisci(int *index,int h,int k,int n)
 		while(index[i]>h)
 			i--;
 		i--;
-		while(index[i]>k)
+		while(index[i]>k && i!=-1)
+		{
 			index[i+1]=index[i];
-		index[i]=k;
+			i--;
+		}
+		//if (i==0)
+		//	index[0]=k;
+		 index[i+1]=k;
 		
 	}
 		
@@ -162,6 +167,7 @@ double *rapport(double **An, double *W, double *x,double *bn,int n,int m)
 	for (i=0;i<m;i++)
 		if (rap[i]>0)
 			rap[i]= (bn[i]-scalar(An[i],x,n))/rap[i];
+		else rap[i]= -1.0;
 	return rap;
 }
 
@@ -169,8 +175,11 @@ double *rapport(double **An, double *W, double *x,double *bn,int n,int m)
 int min(double *rap, int n)
 {
 	int i,indmin;
-	indmin = -1;
-	for (i=0;i<n;i++)
+	i=0;
+	while (rap[i]<0)
+		i++;
+	indmin = i;
+	for (;i<n;i++)
 		if (rap[i]>=0 && rap[i]<rap[indmin])
 			indmin=i;
 	return indmin;
