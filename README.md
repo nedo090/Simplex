@@ -3,7 +3,10 @@ Simplex
 
 C implementation of Simplex Algorithm
 
-Prealpha 
+Alpha
+
 manca funzione inversa 
 
-testare funzioni ausiliarie singolarmente
+scrivere manualmente la matrice nel codice per testare
+
+funzioni ausiliarie testate singolarmente
