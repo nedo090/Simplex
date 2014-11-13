@@ -3,11 +3,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-double scalar(double *x,double *y, int n);
+double scalar(double *x,double *y, int n);//testata
 int firstnegative(double *y,int n);//testata
 double *rapport(double **An, double *W, double *x,double *bn,int n,int m);
 void sostituisci(int *index,int h,int k,int n);//testata
-double **creaAn(double **A,int *index, int m,int n);
+double **creaAn(double **A,int *index, int m,int n);//testata
 double *creatmpb(double *b,int *index,int n);//testata
 double *creabn(double *b,int *index, int m,int n);//testata
 double *prodotto(double **Inverse, double *b,int n);
@@ -16,11 +16,10 @@ int min(double *rap, int n);//testata
 double *Simplesso(int m, int n, double **A, double *b, double *c,int *index)
 {
 	int i;
-	//calcolo inversa(indicizzata per colonne),  An (indicizzata per righe), tempb, bn
-	double **An=creaAn(A,index,m,n);
-	double *tempb=creatmpb(b,index,n);
-	double *bn=creabn(b,index,m,n);
-	double **Inverse=NULL;
+	//calcolo inversa(indicizzata per colonne) fittizia nella versione alpha
+	//double **Inverse=
+	double Inverse [][]={1,2,3,4}; n=2; //fittizi
+
 	
 	//calcolo indice uscente h
 	double *y=(double *) malloc (n*sizeof(double));
@@ -29,24 +28,30 @@ double *Simplesso(int m, int n, double **A, double *b, double *c,int *index)
 	int h=firstnegative(y,n);
 	free(y);	
 	
-	//calcolo x
-	
+	//calcolo x e vettore b di base tempb
+	double *tempb=creatmpb(b,index,n);
 	double *x=prodotto(Inverse,tempb,n);
+	free(tempb);
 	// in caso di vertice ottimo restituisce x
 	if (h==-1)
-		return x;
+		{
+			free(Inverse);free(x);
+			return x;
+		}
 	
 	
 	//calcolo rapporti, risultato infinito e indice entrante k
+	double **An=creaAn(A,index,m,n); //matrice A non di base
+	double *bn=creabn(b,index,m,n);
 	double *rap=rapport(An,Inverse[h],x,bn,n,m-n);
 	int k= min(rap, m-n);
+	free(Inverse);free(bn);free(rap);free(x);free(An);
 	if (k==-1)
 	{
 		printf("errore pochi vincoli\n");
 		return NULL;
 	}
-	//libera memoria, aggiorna gli indici e reitera il simplesso
-	free(Inverse);free(tempb);free(bn);free(rap);free(x);free(An);
+	//aggiorna gli indici e reitera il simplesso
 	sostituisci(index,h,k,n);
 	return Simplesso(m,n,A,b,c,index);
 }
@@ -110,13 +115,17 @@ void sostituisci(int *index,int h,int k,int n)
 double **creaAn(double **A,int *index, int m,int n)
 {
 	int i,j,k;
-	j=k=0;
-	n=m-n;
-	double **An= (double **) malloc (n*sizeof(double *));
-	for (i=0;i<m;i++)
-		if (i!=index[k])
-			An[j++]=A[i];
-	else k++;
+	j=k=i=0;
+	double **An= (double **) malloc ((m-n)*sizeof(double *));
+	while(k<n)
+		{ 
+			for(;i<index[k];i++,j++)
+				An[j]=A[i];
+				k++;i++;
+		}
+		for(;i<m;i++,j++)
+			An[j]=A[i];
+				
 	return An;
 }
 
