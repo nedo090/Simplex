@@ -158,7 +158,7 @@ double *creatmpb(double *b,int *index,int n)
 //Inverse è indicizzata per colonna
 double *prodotto(double **Inverse, double *b,int n)
 {
-	double *x=(double *) malloc (n*sizeof(double));
+	double *x=(double *) calloc (n,sizeof(double));
 	int i,j;
 	for (i=0; i<n;i++)
 		for(j=0;j<n;j++)
