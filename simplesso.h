@@ -3,15 +3,15 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-double scalar(double *x,double *y, int n);//testata
-int firstnegative(double *y,int n);//testata
+double scalar(double *x,double *y, int n);
+int firstnegative(double *y,int n);
 double *rapport(double **An, double *W, double *x,double *bn,int n,int m);
-void sostituisci(int *index,int h,int k,int n);//testata
-double **creaAn(double **A,int *index, int m,int n);//testata
-double *creatmpb(double *b,int *index,int n);//testata
-double *creabn(double *b,int *index, int m,int n);//testata
+void sostituisci(int *index,int h,int k,int n);
+double **creaAn(double **A,int *index, int m,int n);
+double *creatmpb(double *b,int *index,int n);
+double *creabn(double *b,int *index, int m,int n);
 double *prodotto(double **Inverse, double *b,int n);
-int min(double *rap, int n);//testata
+int min(double *rap, int n);
 
 double *Simplesso(int m, int n, double **A, double *b, double *c,int *index)
 {
