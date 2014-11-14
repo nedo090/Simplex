@@ -69,7 +69,7 @@ double scalar(double *x,double *y, int n)
 int firstnegative(double *y,int n)
 {
 	int i=0;
-	while (y[i]>=0 && i<n)
+	while (i<n && y[i]>=0)
 		i++;
 	if (i==n)
 		return -1;
@@ -99,7 +99,7 @@ void sostituisci(int *index,int h,int k,int n)
 		while(index[i]>h)
 			i--;
 		i--;
-		while(index[i]>k && i!=-1)
+		while(i!=-1 && index[i]>k)
 		{
 			index[i+1]=index[i];
 			i--;
