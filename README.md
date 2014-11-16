@@ -3,10 +3,10 @@ Simplex
 
 C implementation of Simplex Algorithm
 
-Alpha
+Beta
 
-manca funzione inversa 
+algoritmo completo per n=2
 
-scrivere manualmente la matrice nel codice per testare
+di defalut return NULL per test su singola instanza, controllo di index per verificare avanzamento di base
 
-funzioni ausiliarie testate singolarmente
+modificare riga 59 per algoritmo completo

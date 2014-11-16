@@ -1,7 +1,8 @@
-// PREALPHA version
+// Beta version
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "inverse.h"
 
 double scalar(double *x,double *y, int n);
 int firstnegative(double *y,int n);
@@ -12,13 +13,15 @@ double *creatmpb(double *b,int *index,int n);
 double *creabn(double *b,int *index, int m,int n);
 double *prodotto(double **Inverse, double *b,int n);
 int min(double *rap, int n);
+double **selectbase(double **A,int *index,int n);
 
 double *Simplesso(int m, int n, double **A, double *b, double *c,int *index)
 {
-	int i;
-	//calcolo inversa(indicizzata per colonne) fittizia nella versione alpha
-	//double **Inverse=
-	double Inverse [][]={1,2,3,4}; n=2; //fittizi
+	int i;n=2; //limitazione versione beta
+	//calcolo inversa(indicizzata per colonne) 
+	double **base=selectbase(A,index,n);
+	double **Inverse=inversion(base);
+	free(base);
 
 	
 	//calcolo indice uscente h
@@ -53,7 +56,7 @@ double *Simplesso(int m, int n, double **A, double *b, double *c,int *index)
 	}
 	//aggiorna gli indici e reitera il simplesso
 	sostituisci(index,h,k,n);
-	return Simplesso(m,n,A,b,c,index);
+	return NULL;//Simplesso(m,n,A,b,c,index); testing singola instanza
 }
 //prodotto scalare	
 double scalar(double *x,double *y, int n)
@@ -192,4 +195,14 @@ int min(double *rap, int n)
 		if (rap[i]>=0 && rap[i]<rap[indmin])
 			indmin=i;
 	return indmin;
+}
+
+//seleziona i vettori della base dalla matrice A
+double **selectbase(double **A,int *index,int n)
+{
+	double **base = (double **)malloc(n*sizeof(double *));
+	int i;
+	for(i=0;i<n;i++)
+	base[i]= A[index[i]];
+	return base;
 }
