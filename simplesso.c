@@ -1,8 +1,16 @@
 // Beta version
 
+//test mode
+#define limit 2
+#define verbose
+#define singleinstance
+//
 #include <stdlib.h>
+#include "inverse.c"
+
+#ifdef verbose
 #include <stdio.h>
-#include "inverse.h"
+#endif
 
 double scalar(double *x,double *y, int n);
 int firstnegative(double *y,int n);
@@ -14,10 +22,14 @@ double *creabn(double *b,int *index, int m,int n);
 double *prodotto(double **Inverse, double *b,int n);
 int min(double *rap, int n);
 double **selectbase(double **A,int *index,int n);
+int normalize(int k, int *index, int n);
 
 double *Simplesso(int m, int n, double **A, double *b, double *c,int *index)
 {
-	int i;n=2; //limitazione versione beta
+	int i;
+	#ifdef limit
+	n=limit; //limitazione testing version
+	#endif
 	//calcolo inversa(indicizzata per colonne) 
 	double **base=selectbase(A,index,n);
 	double **Inverse=inversion(base);
@@ -29,6 +41,12 @@ double *Simplesso(int m, int n, double **A, double *b, double *c,int *index)
 	for(i=0;i<n;i++)
 		y[i]=scalar(c,Inverse[i],n);
 	int h=firstnegative(y,n);
+	#ifdef vervose
+	printf("\n y= ");
+	for(i=0;i<n;i++)
+		printf("%f",y[i]);
+	printf("\n");
+	#endif
 	free(y);	
 	
 	//calcolo x e vettore b di base tempb
@@ -36,27 +54,48 @@ double *Simplesso(int m, int n, double **A, double *b, double *c,int *index)
 	double *x=prodotto(Inverse,tempb,n);
 	free(tempb);
 	// in caso di vertice ottimo restituisce x
+	#ifdef vervose
+	printf("\n x= ");
+	for(i=0;i<n;i++)
+		printf("%f",x[i]);
+	printf("\n");
+	#endif
+	
 	if (h==-1)
 		{
 			free(Inverse);free(x);
 			return x;
 		}
-	
+	h=index[h]; //assegna il valore effettivo dell'indice uscente
 	
 	//calcolo rapporti, risultato infinito e indice entrante k
 	double **An=creaAn(A,index,m,n); //matrice A non di base
 	double *bn=creabn(b,index,m,n);
 	double *rap=rapport(An,Inverse[h],x,bn,n,m-n);
-	int k= min(rap, m-n);
+	int k = min(rap, m-n);
 	free(Inverse);free(bn);free(rap);free(x);free(An);
 	if (k==-1)
 	{
+		#ifdef verbose
 		printf("errore pochi vincoli\n");
+		#endif
 		return NULL;
 	}
+	k = normalize(k,index,n); //normalizza indice entrante col valore effettivo
 	//aggiorna gli indici e reitera il simplesso
 	sostituisci(index,h,k,n);
-	return NULL;//Simplesso(m,n,A,b,c,index); testing singola instanza
+	
+	#ifdef verbose
+	printf("\nindice entrante=%d\nindice uscente=%d\nnuova bese:",k,h);
+	for(i=0;i<n;i++)
+		printf("%d ",index[i]);
+	printf("\n");
+	#endif
+	
+	#ifdef singleinstance
+	return NULL;
+	#endif 
+	return Simplesso(m,n,A,b,c,index);
 }
 //prodotto scalare	
 double scalar(double *x,double *y, int n)
@@ -172,13 +211,21 @@ double *prodotto(double **Inverse, double *b,int n)
 //calcola i rapporti, prima i denominatori, poi i numeratori validi
 double *rapport(double **An, double *W, double *x,double *bn,int n,int m)
 {
+	#ifdef verbose
+	printf("rapporti:");
+	#endif
 	double *rap = (double *) malloc (m*sizeof(double));
 	int i;
 	for(i=0;i<m; i++)
 		rap[i]=-1*scalar(An[i],W,n);
 	for (i=0;i<m;i++)
 		if (rap[i]>0)
-			rap[i]= (bn[i]-scalar(An[i],x,n))/rap[i];
+			{
+				rap[i]= (bn[i]-scalar(An[i],x,n))/rap[i];
+				#ifdef verbose
+				printf("%f ",rap[i]);
+				#endif
+			}
 		else rap[i]= -1.0;
 	return rap;
 }
@@ -188,8 +235,12 @@ int min(double *rap, int n)
 {
 	int i,indmin;
 	i=0;
-	while (rap[i]<0)
+	while (i<n && rap[i]<0)
 		i++;
+	
+	if (i==n)
+		return -1;
+
 	indmin = i;
 	for (;i<n;i++)
 		if (rap[i]>=0 && rap[i]<rap[indmin])
@@ -205,4 +256,20 @@ double **selectbase(double **A,int *index,int n)
 	for(i=0;i<n;i++)
 	base[i]= A[index[i]];
 	return base;
+}
+
+//normalizza indice entrante tenendo conto delle righe di base sottratte alla matrice iniziale
+int normalize(int k, int *index, int n)
+{
+	int i=0;
+	while (i<n && k>=index[i])
+	{
+		if (k<index[i])
+			i++;
+		else{
+				i++;k++;
+		   	}
+		
+	}
+	return k;
 }
