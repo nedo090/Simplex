@@ -41,7 +41,7 @@ double *Simplesso(int m, int n, double **A, double *b, double *c,int *index)
 	for(i=0;i<n;i++)
 		y[i]=scalar(c,Inverse[i],n);
 	int h=firstnegative(y,n);
-	#ifdef vervose
+	#ifdef verbose
 	printf("\n y= ");
 	for(i=0;i<n;i++)
 		printf("%f",y[i]);
@@ -54,7 +54,7 @@ double *Simplesso(int m, int n, double **A, double *b, double *c,int *index)
 	double *x=prodotto(Inverse,tempb,n);
 	free(tempb);
 	// in caso di vertice ottimo restituisce x
-	#ifdef vervose
+	#ifdef verbose
 	printf("\n x= ");
 	for(i=0;i<n;i++)
 		printf("%f",x[i]);
