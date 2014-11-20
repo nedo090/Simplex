@@ -63,10 +63,10 @@ double *Simplesso(int m, int n, double **A, double *b, double *c,int *index)
 	
 	if (h==-1)
 		{
-			free(Inverse);free(x);
+			free(Inverse);
 			return x;
 		}
-	h=index[h]; //assegna il valore effettivo dell'indice uscente
+	
 	
 	//calcolo rapporti, risultato infinito e indice entrante k
 	double **An=creaAn(A,index,m,n); //matrice A non di base
@@ -81,12 +81,13 @@ double *Simplesso(int m, int n, double **A, double *b, double *c,int *index)
 		#endif
 		return NULL;
 	}
+	h=index[h]; //assegna il valore effettivo dell'indice uscente
 	k = normalize(k,index,n); //normalizza indice entrante col valore effettivo
 	//aggiorna gli indici e reitera il simplesso
 	sostituisci(index,h,k,n);
 	
 	#ifdef verbose
-	printf("\nindice entrante=%d\nindice uscente=%d\nnuova bese:",k,h);
+	printf("\nindice entrante=%d\nindice uscente=%d\nnuova base:",k,h);
 	for(i=0;i<n;i++)
 		printf("%d ",index[i]);
 	printf("\n");
@@ -176,10 +177,9 @@ double *creabn(double *b,int *index, int m,int n)
 {
 	int i,j,k;
 	j=k=0;
-	n=m-n;
-	double *bn= (double *) malloc (n*sizeof(double));
+	double *bn= (double *) malloc ((m-n)*sizeof(double));
 	for (i=0;i<m;i++)
-		if (i!=index[k])
+		if (i!=index[k%n])
 			bn[j++]=b[i];
 	else k++;
 	return bn;
